@@ -22,7 +22,24 @@ function fi_build {
     else
         echo "FreeImage directory not found"
     fi
-}   
+}
+
+function fi_analyze {
+    if [ -d "FreeImage" ]; then
+        if [ ! -e "FreeImage/Makefile.srcs" || ! -e "FreeImage/Source/Plugin.h" ]; then
+            FI_LIBRARIES=$(grep INCLUDE "FreeImage/Makefile.srcs" | sed -e 's/^.*-ISource //g' \
+                -e 's/-ISource\///g' -e 's/\/[A-z]*//g' -e 's/Metadata \|FreeImageToolkit //g' | \
+                awk 'BEGIN{RS=ORS=" "}!a[$0]++' | tr -d '\n')
+            FI_PLUGINS=$(egrep 'void DLL_CALLCONV Init.*\(Plugin \*plugin, int format_id\);' \
+                "FreeImage/Source/Plugin.h" | sed -e 's/^.*Init//g' -e 's/(Plugin.*$//g' | tr '\n' ' ')
+            
+            echo "Libraries: $FI_LIBRARIES"
+            echo "Plugins: $FI_PLUGINS"
+        fi
+    else
+        echo "FreeImage directory not found"
+    fi
+}
 
 function fi_clean {
     rm -rf FreeImage
@@ -44,12 +61,15 @@ case $1 in
     fi_get;;
     "build")
     fi_build;;
+    "analyze")
+    fi_analyze;;
     "clean")
     fi_clean;;
     *)
     echo "usage: $0"
     echo "                      get"
     echo "                      build"
+    echo "                      analyze"
     echo "                      clean";;
 esac
 
