@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FI_VERSION=3.16.0
+FI_VERSION=3.15.4
 FI_ARCHIVE="FreeImage${FI_VERSION//./}.zip"
 
 function fi_get {
@@ -26,7 +26,7 @@ function fi_build {
 
 function fi_analyze {
     if [ -d "FreeImage" ]; then
-        if [ ! -e "FreeImage/Makefile.srcs" || ! -e "FreeImage/Source/Plugin.h" ]; then
+        if [ -e "FreeImage/Makefile.srcs" ] || [ -e "FreeImage/Source/Plugin.h" ]; then
             FI_LIBRARIES=$(grep INCLUDE "FreeImage/Makefile.srcs" | sed -e 's/^.*-ISource //g' \
                 -e 's/-ISource\///g' -e 's/\/[A-z]*//g' -e 's/Metadata \|FreeImageToolkit //g' | \
                 awk 'BEGIN{RS=ORS=" "}!a[$0]++' | tr -d '\n')
@@ -35,6 +35,8 @@ function fi_analyze {
             
             echo "Libraries: $FI_LIBRARIES"
             echo "Plugins: $FI_PLUGINS"
+        else
+            echo "Cannot find important FreeImage files, please run 'clean' and 'get'"
         fi
     else
         echo "FreeImage directory not found"
