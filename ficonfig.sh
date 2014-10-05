@@ -14,6 +14,16 @@ function fi_get {
     fi
 }
 
+function fi_build {
+    if [ -d "FreeImage" ]; then
+        cd FreeImage
+        make clean
+        make
+    else
+        echo "FreeImage directory not found"
+    fi
+}   
+
 function fi_clean {
     rm -rf FreeImage
     rm -f $FI_ARCHIVE
@@ -32,10 +42,15 @@ cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 case $1 in
     "get")
     fi_get;;
+    "build")
+    fi_build;;
     "clean")
     fi_clean;;
     *)
-    echo "usage: $0 get | clean";;
+    echo "usage: $0"
+    echo "                      get"
+    echo "                      build"
+    echo "                      clean";;
 esac
 
 # return to the working directory
